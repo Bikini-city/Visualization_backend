@@ -22,7 +22,7 @@ class DataSet(models.Model):
 
 class Result(models.Model):
     id = models.AutoField(help_text="primary key", primary_key=True, null=False)
-    dataset_id = models.ForeignKey("DataSet", related_name="dataset", on_delete=models.CASCADE, db_column="dataset_id")
+    dataSet_id = models.ForeignKey("DataSet", related_name="dataset", on_delete=models.CASCADE, db_column="dataset_id")
     broken = models.IntegerField()
     fallen = models.IntegerField()
 

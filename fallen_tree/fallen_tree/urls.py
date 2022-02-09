@@ -25,7 +25,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("visualization.urls", namespace="visualization")),
+    path('datas/', include("visualization.urls", namespace="visualization")),
     
 ]
 if settings.DEBUG:

@@ -4,5 +4,7 @@ from .views import *
 app_name = "visualization"
 
 urlpatterns =[
-    path('datas/',post),
+    path('uploads',postDataSet),
+    path('',getDataSets),
+    path('/<int:id>',DataSetWithID.as_view()),
 ]
