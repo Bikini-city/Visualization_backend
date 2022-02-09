@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./fallen_tree/visualization"
+    ]
+}
