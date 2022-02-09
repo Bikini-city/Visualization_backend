@@ -1,61 +1,81 @@
 from drf_yasg import openapi
 from .serializers import *
 
-channelList_response_dict = {
+GetDataSet_response_dict = {
     "200" : openapi.Response(
         description="Success",
         schema=DataSetSerializer,
         examples={
-            "application/json": {
-                "user": {
-                    "id": 1,
-                    "name": "moon",
-                    "info": {
-                        "age": 23,
-                        "gender": "female",
-                        "부서": "개발팀"
-                    },
-                    "profile_photo": "/upload_files/toy.jpg"
-            },
-                "channels": [
+            "application/json": [
                 {
                     "id": 1,
-                    "name": "뭉가네",
-                    "lock": 0,
-                    "background": "/upload_files/toy.jpg"
+                    "lat": "40.4240988275343500",
+                    "lng": "-86.9177794290636400",
+                    "src": "/media/%EC%98%81%EC%83%81.mp4",
+                    "date": "2022-02-08",
+                    "broken": 2,
+                    "fallen": 3
                 },
                 {
                     "id": 2,
-                    "name": "마루네",
-                    "lock": 0,
-                    "background": "/upload_files/%EB%A9%94%EB%A5%98.jpg"
+                    "lat": "40.4240988275343500",
+                    "lng": "-86.9177794290636400",
+                    "src": "/media/False",
+                    "date": "2022-02-08",
+                    "broken": 1,
+                    "fallen": 2
+                },
+                {
+                    "id": 3,
+                    "lat": "40.4240988275343500",
+                    "lng": "-86.9177794290636400",
+                    "src": "/media/False",
+                    "date": "2022-02-08",
+                    "broken": 3,
+                    "fallen": 4
                 }
             ]
-                    }
+        }
+    ),
+}
+PostDataSet_response_dict = {
+    "200" : openapi.Response(
+        description="Success",
+        schema=DataSetSerializer,
+        examples={
+            "application/json" : {
+                "id": 13,
+                "lat": "40.4240988275343500",
+                "lng": "-86.9177794290636400",
+                "src": "/media/%EC%84%9C%EB%AA%85_gtv1QSR.jpg",
+                "date": "2022-02-09",
+                "broken": 4,
+                "fallen": 3
             }
-    ),
-    "401" : openapi.Response(
-        description="헤더에 authorazation이 없거나, 사용자가 존재하지 않을때",
+        }
+    )
+}
+
+GetDataSetDetail_response_dict = {
+    "200" : openapi.Response(
+        description="Success",
+        schema=DataSetSerializer,
         examples={
-            "application/json":{
-            "error": "Authorization Error"
+            "application/json" : {
+                "id": 13,
+                "lat": "40.4240988275343500",
+                "lng": "-86.9177794290636400",
+                "src": "/media/%EC%84%9C%EB%AA%85_gtv1QSR.jpg",
+                "date": "2022-02-09",
+                "broken": 4,
+                "fallen": 3
+            }
         }
-        }
-    ),
-    "401" : openapi.Response(
-        description="헤더에 authorazation이 존재하나 decoding에 실패할 경우",
-        examples={
-            "application/json":{
-             "error" : "Decoding Token fail"
-        }
-        }
-    ),
-    "403" : openapi.Response(
-        description="토큰 인증 만료",
-        examples={
-            "application/json":{
-             "error": "Expired token. Please log in again."
-        }
-        }
-    ),
+    )
+}
+
+DeleteDataSetDetail_response_dict = {
+    "204" : openapi.Response(
+        description="Success(HTTP_204_NO_CONTENT)",
+    )
 }
