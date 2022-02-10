@@ -39,7 +39,7 @@ def getDataSets(request):
         result_json = ResultSerializer(result).data
 
         dataSet_json["broken"] = result_json["broken"]
-        dataSet_json["fallen"] = result_json["fallen"]
+        dataSet_json["down"] = result_json["down"]
         
         response.append(dataSet_json)
 
@@ -70,7 +70,7 @@ def postDataSet(request):
         if test:
             result = Result(
                 broken = 4,
-                fallen = 3,
+                down = 3,
                 dataSet_id = dataSet
             )
             result.save()
@@ -78,7 +78,7 @@ def postDataSet(request):
 
         result_json = ResultSerializer(result).data
         dataSet_data["broken"] = result_json["broken"]
-        dataSet_data["fallen"] = result_json["fallen"]
+        dataSet_data["down"] = result_json["down"]
 
         return JsonResponse(dataSet_data, safe=False, status=status.HTTP_201_CREATED)
     else:
@@ -98,9 +98,9 @@ class DataSetWithID(APIView):
         dataSet_json = DataSetSerializer(dataSet).data
         result_json = ResultSerializer(result).data
 
-        #응답부분에 result의 broken, fallen 정보 넣기
+        #응답부분에 result의 broken, down 정보 넣기
         dataSet_json["broken"] = result_json["broken"]
-        dataSet_json["fallen"] = result_json["fallen"]
+        dataSet_json["down"] = result_json["down"]
         
         return JsonResponse(dataSet_json, safe=False)
 

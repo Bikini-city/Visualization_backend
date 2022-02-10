@@ -14,7 +14,7 @@ GetDataSet_response_dict = {
                     "src": "/media/%EC%98%81%EC%83%81.mp4",
                     "date": "2022-02-08",
                     "broken": 2,
-                    "fallen": 3
+                    "down": 3
                 },
                 {
                     "id": 2,
@@ -23,7 +23,7 @@ GetDataSet_response_dict = {
                     "src": "/media/False",
                     "date": "2022-02-08",
                     "broken": 1,
-                    "fallen": 2
+                    "down": 2
                 },
                 {
                     "id": 3,
@@ -32,7 +32,7 @@ GetDataSet_response_dict = {
                     "src": "/media/False",
                     "date": "2022-02-08",
                     "broken": 3,
-                    "fallen": 4
+                    "down": 4
                 }
             ]
         }
@@ -50,7 +50,7 @@ PostDataSet_response_dict = {
                 "src": "/media/%EC%84%9C%EB%AA%85_gtv1QSR.jpg",
                 "date": "2022-02-09",
                 "broken": 4,
-                "fallen": 3
+                "down": 3
             }
         }
     )
@@ -68,7 +68,7 @@ GetDataSetDetail_response_dict = {
                 "src": "/media/%EC%84%9C%EB%AA%85_gtv1QSR.jpg",
                 "date": "2022-02-09",
                 "broken": 4,
-                "fallen": 3
+                "down": 3
             }
         }
     )

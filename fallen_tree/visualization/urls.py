@@ -6,5 +6,5 @@ app_name = "visualization"
 urlpatterns =[
     path('uploads',postDataSet),
     path('',getDataSets),
-    path('/<int:id>',DataSetWithID.as_view()),
+    path('<int:id>',DataSetWithID.as_view()),
 ]

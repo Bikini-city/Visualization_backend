@@ -7,15 +7,16 @@ from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 from visualization.views import *
 
-schema_view = get_schema_view(
-    openapi.Info(
+api_info = openapi.Info(
         title="FallenTree_Visualization_API", # 타이틀
         default_version='v1', # 버전
         description="FallenTree_Visualization API 문서", # 설명
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="mjh991016@naver.com"),
         license=openapi.License(name=""),
-    ),
+    )
+schema_view = get_schema_view(
+    api_info,
     validators=['flex'],
     public=True,
     permission_classes=(AllowAny,)
