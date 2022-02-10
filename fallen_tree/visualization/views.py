@@ -1,3 +1,6 @@
+import os
+import time
+
 from http import HTTPStatus
 from http.client import BAD_REQUEST
 from msilib.schema import Error
@@ -16,6 +19,15 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import parser_classes
 from rest_framework.views import APIView
+
+from .serializers import DetectionsSerializer
+from .models import Detections
+from .setups import DEMO_PATH,EXP_FILE,MODEL_PATH
+from .YOLOX.tools.demo import main,make_parser,get_exp
+from .codewriter import json_reader,addUiElements
+from rest_framework import viewsets
+
+from visualization.detect_fallen import *
 
 test = True
 
@@ -49,7 +61,7 @@ def getDataSets(request):
 @swagger_auto_schema(method="post",manual_parameters=[src,lat,lng,dat],responses=PostDataSet_response_dict)
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
-def postDataSet(request):
+def postDataSet(request,**args):
     
     error_data = {}
     if request.method == 'POST':
@@ -66,11 +78,13 @@ def postDataSet(request):
         dataSet.save()
         dataSet_data = DataSetSerializer(dataSet).data
 
+        down, broken = detect(src,**args)
+        
         #### For Test START ####
         if test:
             result = Result(
-                broken = 4,
-                fallen = 3,
+                broken = broken,
+                fallen = down,
                 dataSet_id = dataSet
             )
             result.save()
@@ -117,3 +131,44 @@ class DataSetWithID(APIView):
         result.delete()
 
         return JsonResponse(response, safe=False, status=status.HTTP_204_NO_CONTENT)
+    
+"""class DetectionsViewSet(viewsets.ModelViewSet):
+    queryset = Detections.objects.filter(id=1)
+    serializer_class = DetectionsSerializer
+
+
+    def create(self, request, *args, **kwargs):
+
+        # Perform Transaction
+        confidence = float(request.data['confidence'])
+        image_to_detect = request.data['image_to_detect']
+
+        detections = Detections.objects.create(image_to_detect=image_to_detect,confidence=confidence)
+        VAL_IMG_PATH = f'media/{detections.image_to_detect}'
+
+        # YOLOX PARAMETERS
+        conf = confidence
+        args = make_parser().parse_args()
+        args.demo = "image"
+        args.exp_file = EXP_FILE
+        args.ckpt = MODEL_PATH
+        args.path = VAL_IMG_PATH
+        args.conf = conf
+        args.nms = 0.45
+        args.tsize = 640
+        args.save_result = True
+        exp = get_exp(args.exp_file, args.name)
+
+        # YOLOX DETECTOR
+        jfile = main(exp,args)
+        # img,jfile = path_converter(img),path_converter(jfile)
+
+        # PYQT CODE GENERATOR
+        data = json_reader(jfile)
+"""
+        
+
+      
+
+       
+
