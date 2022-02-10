@@ -7,8 +7,6 @@ from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 from visualization.views import *
 
-
-
 schema_view = get_schema_view(
     openapi.Info(
         title="FallenTree_Visualization_API", # 타이틀
