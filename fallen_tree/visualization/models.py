@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from django.core.validators import FileExtensionValidator
 
 #For Test
 class FileUpload(models.Model):
@@ -14,7 +15,7 @@ class DataSet(models.Model):
     id = models.AutoField(help_text="primary key", primary_key=True, null=False)
     lat = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
     lng = models.DecimalField(max_digits=22, decimal_places=16, blank=True, null=True)
-    src = models.FileField(null=True, upload_to="", blank=True)
+    src = models.FileField(null=True, upload_to="", blank=True,validators=[FileExtensionValidator(allowed_extensions=['mp4','jpeg','jpg','png'])])
     date = models.DateField(("Date"), default=date.today)
 
     class Meta:

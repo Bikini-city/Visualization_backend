@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import parser_classes
 from rest_framework.views import APIView
+from django.utils.datastructures import MultiValueDictKeyError
 
 test = True
 
@@ -35,9 +36,12 @@ def getDataSets(request):
     for dataSet in dataSets:
         dataSet_json = DataSetSerializer(dataSet).data   
         dataSet_id = dataSet_json["id"]
-        result = get_object_or_404(Result,dataSet_id=dataSet_id)
+        try:
+            result = Result.objects.get(dataSet_id=dataSet_id)
+        except Result.DoesNotExist:
+            continue
         result_json = ResultSerializer(result).data
-
+        
         dataSet_json["broken"] = result_json["broken"]
         dataSet_json["down"] = result_json["down"]
         
@@ -50,40 +54,44 @@ def getDataSets(request):
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
 def postDataSet(request):
-    
-    error_data = {}
-    if request.method == 'POST':
-        lat = request.POST['lat']
-        lng = request.POST['lng']
-        src = request.FILES.get("src", None)
-        date = request.POST['date']
-        dataSet = DataSet(
-            lat=lat,
-            lng=lng,
-            src=src,
-            date=date,
-        )
-        dataSet.save()
-        dataSet_data = DataSetSerializer(dataSet).data
-
-        #### For Test START ####
-        if test:
-            result = Result(
-                broken = 4,
-                down = 3,
-                dataSet_id = dataSet
+    try:
+        error_data = {}
+        if request.method == 'POST':
+            lat = request.POST['lat']
+            lng = request.POST['lng']
+            src = request.FILES.get("src", None)
+            date = request.POST['date']
+            dataSet = DataSet(
+                lat=lat,
+                lng=lng,
+                src=src,
+                date=date,
             )
-            result.save()
-        #### For Test END ####
+            dataSet.save()
+            dataSet_data = DataSetSerializer(dataSet).data
 
-        result_json = ResultSerializer(result).data
-        dataSet_data["broken"] = result_json["broken"]
-        dataSet_data["down"] = result_json["down"]
+            #### For Test START ####
+            if test:
+                result = Result(
+                    broken = 4,
+                    down = 3,
+                    dataSet_id = dataSet
+                )
+                result.save()
+            #### For Test END ####
 
-        return JsonResponse(dataSet_data, safe=False, status=status.HTTP_201_CREATED)
-    else:
-        error_data["error"] = "POST /datas에서 오류가 발생함"
-        return JsonResponse(error_data, safe=False, status=HTTPStatus/BAD_REQUEST)
+            result_json = ResultSerializer(result).data
+            dataSet_data["broken"] = result_json["broken"]
+            dataSet_data["down"] = result_json["down"]
+
+            return JsonResponse(dataSet_data, safe=False, status=status.HTTP_201_CREATED)
+        else:
+            error_data["error"] = "POST /datas에서 오류가 발생함"
+            return JsonResponse(error_data, safe=False, status=HTTPStatus/BAD_REQUEST)
+
+    except MultiValueDictKeyError:
+        error_data["error"] = "요청이 잘못되었음 form을 확인해보세요"
+        return JsonResponse(error_data, safe=False, status=HTTPStatus.BAD_REQUEST)
 
 
 class DataSetWithID(APIView):
@@ -91,29 +99,44 @@ class DataSetWithID(APIView):
     #GET datas/{id}
     @swagger_auto_schema(responses=GetDataSetDetail_response_dict)
     def get(self, request, *args, **kwargs): 
+        status = HTTPStatus.OK
+        error_data = {}
         # model 가져오기
         id = kwargs.get("id")
-        dataSet = get_object_or_404(DataSet, id=id)
-        result = get_object_or_404(Result, dataSet_id = id)
-        dataSet_json = DataSetSerializer(dataSet).data
-        result_json = ResultSerializer(result).data
+        try:
+            dataSet = DataSet.objects.get(id=id)
+            result = Result.objects.get(dataSet_id=id)
+            dataSet_json = DataSetSerializer(dataSet).data
+            result_json = ResultSerializer(result).data
 
-        #응답부분에 result의 broken, down 정보 넣기
-        dataSet_json["broken"] = result_json["broken"]
-        dataSet_json["down"] = result_json["down"]
-        
+            #응답부분에 result의 broken, down 정보 넣기
+            dataSet_json["broken"] = result_json["broken"]
+            dataSet_json["down"] = result_json["down"]
+
+        except (DataSet.DoesNotExist, Result.DoesNotExist):
+            error_data["error"] = "DataSet or Result Does Not Exist"
+            status = HTTPStatus.NOT_FOUND
+            return JsonResponse(error_data, status=status)
+
         return JsonResponse(dataSet_json, safe=False)
 
     #DELETE datas/{id}
     @swagger_auto_schema(responses=DeleteDataSetDetail_response_dict)
     def delete(self, request, *args, **kwargs):
-        id = kwargs.get("id")
-        dataSet = DataSet.objects.filter(id=id)
-        result = Result.objects.filter(dataSet_id=id)
+        error_data = {}
+        try:
+            id = kwargs.get("id")
+            dataSet = DataSet.objects.get(id=id)
+            result = Result.objects.get(dataSet_id=id)
 
-        response = DataSetSerializer(dataSet).data
+            response = DataSetSerializer(dataSet).data
 
-        dataSet.delete()
-        result.delete()
+            dataSet.delete()
+            result.delete()
 
-        return JsonResponse(response, safe=False, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse(response, safe=False, status=status.HTTP_204_NO_CONTENT)
+        
+        except (DataSet.DoesNotExist, Result.DoesNotExist):
+            error_data["error"] = "DataSet or Result Does Not Exist"
+            status = HTTPStatus.NOT_FOUND
+            return JsonResponse(error_data, status=status)
