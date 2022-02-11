@@ -10,13 +10,18 @@ from itsdangerous import json
 # from loguru import logger
 
 import cv2
-
 import torch
+import base64
+from io import BytesIO
+from PIL import Image
+import numpy as np
+from fallen_tree.settings import MEDIA_ROOT 
 
-from YOLOX.data.data_augment import ValTransform
-from YOLOX.data.datasets import COCO_CLASSES
-from YOLOX.exps import get_exp
-from YOLOX.utils import fuse_model, get_model_info, postprocess, vis
+# from visualization.YOLOX.data.data_augment import ValTransform
+from visualization.YOLOX.data.datasets import coco_classes
+from visualization.YOLOX.yolox.exp import get_exp
+from visualization.YOLOX.yolox.utils import fuse_model, get_model_info, postprocess, vis
+from visualization.YOLOX.yolox.data.data_augment import ValTransform
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
@@ -104,7 +109,7 @@ class Predictor(object):
         self,
         model,
         exp,
-        cls_names=COCO_CLASSES,
+        cls_names=coco_classes,
         trt_file=None,
         decoder=None,
         device="cpu",
@@ -158,20 +163,27 @@ class Predictor(object):
         with torch.no_grad():
             t0 = time.time()
             outputs = self.model(img)
+            
             if self.decoder is not None:
                 outputs = self.decoder(outputs, dtype=outputs.type())
+                print("=== demo_outputs1 : ",outputs)
             outputs = postprocess(
                 outputs, self.num_classes, self.confthre,
                 self.nmsthre, class_agnostic=True
             )
+            print("=== demo_outputs2 : ",outputs)
             # logger.info("Infer time: {:.4f}s".format(time.time() - t0))
+        
         return outputs, img_info
 
     def visual(self, output, img_info, cls_conf=0.35):
+        print("=== 진입")
+        print("=== output : ",output)
+        temp = {}
         ratio = img_info["ratio"]
         img = img_info["raw_img"]
         if output is None:
-            return img
+            return img, temp
         output = output.cpu()
 
         bboxes = output[:, 0:4]
@@ -181,20 +193,30 @@ class Predictor(object):
 
         cls = output[:, 6]
         scores = output[:, 4] * output[:, 5]
-
+        
         vis_res, json_obj = vis(img, bboxes, scores, cls, cls_conf, self.cls_names)
+        print("=== vis_res : ",vis_res," | json_obj : ",json_obj)
         return vis_res, json_obj
 
 
 def image_demo(predictor, vis_folder, path, current_time, save_result):
     json_obj = {}
-    if os.path.isdir(path):
-        files = get_image_list(path)
+    
+    real_path = os.path.join(MEDIA_ROOT, str(path))
+    print("=== real_path : ",real_path)
+    
+    if os.path.isdir(real_path):
+        print("=== success1")
+        files = get_image_list(real_path)
     else:
-        files = [path]
+        print("=== success2")
+        files = [real_path]
     files.sort()
     for image_name in files:
+        print("=== image_name : ",image_name)
         outputs, img_info = predictor.inference(image_name)
+        print("=== outputs : ",outputs)
+        print("=== img_info : ",img_info)
         result_image, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre)
         # fallen, broken 개수 반환
         
@@ -285,7 +307,7 @@ def main(exp, args):
         # logger.info("loading checkpoint")
         ckpt = torch.load(ckpt_file, map_location="cpu")
         # load the model state dict
-        model.load_state_dict(ckpt["model"])
+        # model.load_state_dict(ckpt["model"])
         # logger.info("loaded checkpoint done.")
 
     if args.fuse:
@@ -306,7 +328,7 @@ def main(exp, args):
         decoder = None
 
     predictor = Predictor(
-        model, exp, COCO_CLASSES, trt_file, decoder,
+        model, exp, coco_classes, trt_file, decoder,
         args.device, args.fp16, args.legacy,
     )
     current_time = time.localtime()

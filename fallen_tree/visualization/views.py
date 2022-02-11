@@ -78,7 +78,7 @@ def postDataSet(request,**args):
         dataSet.save()
         dataSet_data = DataSetSerializer(dataSet).data
 
-        down, broken = detect(src,**args)
+        down, broken = detect(src)
         
         #### For Test START ####
         if test:

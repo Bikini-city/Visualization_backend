@@ -4,13 +4,13 @@ from .YOLOX.tools.demo import main,make_parser,get_exp
 from .codewriter import json_reader
 
 
-def detect(src, *args):
+def detect(src):
     # Perform Transaction
-    confidence = float(src.data['confidence'])
-    image_to_detect = src.data['image_to_detect']
+    confidence = float(0.25)
+    image_to_detect = src
 
-    detections = Detections.objects.create(image_to_detect=image_to_detect,confidence=confidence)
-    VAL_IMG_PATH = f'media/{detections.image_to_detect}'
+    # detections = Detections.objects.create(image_to_detect=image_to_detect,confidence=confidence)
+    VAL_IMG_PATH = src
 
     # YOLOX PARAMETERS
     conf = confidence
