@@ -1,11 +1,9 @@
 import subprocess
-# from .setups import DEMO_PATH,EXP_FILE,MODEL_PATH,VAL_IMG_PATH
 
 # Demo yolox path
 DEMO_PATH = './visualization/YOLOX/tools/demo.py'
 MODEL_PATH = "./visualization/YOLOX/weights/best_ckpt.pth"
-EXP_FILE = "./visualization/YOLOX/exps/default/yolox_x.py"
-# VAL_IMG_PATH = "C:/uiElementYolox/uidetectorapi/media/tmp/24.jpg"
+EXP_FILE = "./visualization/YOLOX/exps/example/yolox_voc/yolox_voc_s.py"
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>

@@ -2,8 +2,8 @@
 import torch
 import torch.distributed as dist
 
-from yolox.data import get_yolox_datadir
-from yolox.exp import Exp as MyExp
+from visualization.YOLOX.yolox.data import get_yolox_datadir
+from visualization.YOLOX.yolox.exp import Exp as MyExp
 
 import os
 
@@ -11,7 +11,7 @@ import os
 class Exp(MyExp):
     def __init__(self):
         super(Exp, self).__init__()
-        self.num_classes = 20
+        self.num_classes = 3
         self.depth = 0.33
         self.width = 0.50
         self.warmup_epochs = 1
