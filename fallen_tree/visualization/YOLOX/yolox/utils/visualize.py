@@ -10,9 +10,8 @@ __all__ = ["vis"]
 
 
 def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
-    down,broken = 0,0
+    down, broken = 0, 0
     json_obj = {}
-    print("===boxes: ",boxes)
     for i in range(len(boxes)):
         box = boxes[i]
         cls_id = int(cls_ids[i])
@@ -27,15 +26,11 @@ def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
         color = (_COLORS[cls_id] * 255).astype(np.uint8).tolist()
         text = '{}:{:.1f}%'.format(class_names[cls_id], score * 100)
         if class_names[cls_id] == "down":
-          down+=1
+            down +=1
         elif class_names[cls_id] =="broken":
-            broken+=1
-        print("=== cls_name : ",class_names[cls_id])
+            broken +=1
         
-        json_string = '''{
-            "down": '''+down+''',
-            "broken": '''+broken+'''
-        }'''
+        json_string = '{ "down":"'+str(down)+'", "broken":"'+str(broken)+'"}'
 
         json_obj = json.loads(json_string)
         
