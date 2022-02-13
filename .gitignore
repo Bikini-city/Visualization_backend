@@ -1,3 +1,11 @@
 fallen_tree/media
 fallen_tree/.env
 myvenv
+fallen_tree/YOLOX_outputs
+fallen_tree/visualization/__pycache__
+fallen_tree/visualization/YOLOX/yolox/data/datasets/__pycache__
+fallen_tree/visualization/YOLOX/yolox/utils/__pycache__
+fallen_tree/visualization/YOLOX/tools/__pycache__
+fallen_tree/visualization/YOLOX/exps/example/yolox_voc/__pycache__
+fallen_tree/visualization/YOLOX/yolox/evaluators/__pycache__
+fallen_tree/visualization/YOLOX/yolox/exp/__pycache__
