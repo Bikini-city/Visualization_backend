@@ -18,7 +18,6 @@ import numpy as np
 from fallen_tree.settings import MEDIA_ROOT 
 
 # from visualization.YOLOX.data.data_augment import ValTransform
-from visualization.YOLOX.data.datasets import coco_classes
 from visualization.YOLOX.yolox.exp import get_exp
 from visualization.YOLOX.yolox.utils import fuse_model, get_model_info, postprocess, vis
 from visualization.YOLOX.yolox.data.data_augment import ValTransform
@@ -229,9 +228,8 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
     real_path = os.path.join(MEDIA_ROOT, str(path))
     print("=== real_path : ",real_path)
     cap = cv2.VideoCapture(real_path)
-    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
-    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
+    cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     save_folder = os.path.join(
         vis_folder, time.strftime("%Y_%m_%d_%H_%M_%S", current_time)
     )
@@ -240,25 +238,26 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
         save_path = os.path.join(save_folder, os.path.basename(real_path))
     else:
         save_path = os.path.join(save_folder, "camera.mp4")
-    # logger.info(f"video save_path is {save_path}")
     print("=== save_path : ",save_path)
-    vid_writer = cv2.VideoWriter(
-        save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height))
-    )
     while True:
         ret_val, frame = cap.read()
-        print("=== frame : ",frame)
+        if np.shape(frame) == ():
+            break
+        else:
+            resize_frame = cv2.resize(frame, (416, 416))
+        print("=== ret_val : ",ret_val)
         if ret_val:
-            outputs, img_info = predictor.inference(frame)
+            outputs, img_info = predictor.inference(resize_frame)
             print("=== outputs : ",outputs," | img_info : ",img_info)
-            result_frame = predictor.visual(outputs[0], img_info, predictor.confthre)
-            if args.save_result:
-                vid_writer.write(result_frame)
+            result_frame, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre)
+            # if args.save_result:
+            #     vid_writer.write(result_frame)
             ch = cv2.waitKey(1)
             if ch == 27 or ch == ord("q") or ch == ord("Q"):
                 break
         else:
             break
+    return json_obj
 
 
 def main(exp, args):
@@ -327,7 +326,7 @@ def main(exp, args):
     if args.demo == "image":
         json_obj = image_demo(predictor, vis_folder, args.path, current_time, args.save_result)
     elif args.demo == "video" or args.demo == "webcam":
-        imageflow_demo(predictor, vis_folder, current_time, args)
+        json_obj = imageflow_demo(predictor, vis_folder, current_time, args)
     print("=== json_obj : ",json_obj)
     return json_obj
 
