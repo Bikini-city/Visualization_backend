@@ -34,7 +34,9 @@ def getDataSets(request):
 
     dataSets = DataSet.objects.all()
     for dataSet in dataSets:
-        dataSet_json = DataSetSerializer(dataSet).data   
+        dataSet_json = DataSetSerializer(dataSet).data
+        dataSet_json["lat"] = float(dataSet_json["lat"])
+        dataSet_json["lng"] = float(dataSet_json["lng"])
         dataSet_id = dataSet_json["id"]
         try:
             result = Result.objects.get(dataSet_id=dataSet_id)
@@ -107,6 +109,8 @@ class DataSetWithID(APIView):
             dataSet = DataSet.objects.get(id=id)
             result = Result.objects.get(dataSet_id=id)
             dataSet_json = DataSetSerializer(dataSet).data
+            dataSet_json["lat"] = float(dataSet_json["lat"])
+            dataSet_json["lng"] = float(dataSet_json["lng"])
             result_json = ResultSerializer(result).data
 
             #응답부분에 result의 broken, down 정보 넣기
@@ -130,6 +134,8 @@ class DataSetWithID(APIView):
             result = Result.objects.get(dataSet_id=id)
 
             response = DataSetSerializer(dataSet).data
+            response["lat"] = float(response["lat"])
+            response["lng"] = float(response["lng"])
 
             dataSet.delete()
             result.delete()
