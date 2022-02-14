@@ -109,7 +109,7 @@ class Predictor(object):
         self,
         model,
         exp,
-        cls_names=coco_classes,
+        cls_names= ("down","broken","normal"),
         trt_file=None,
         decoder=None,
         device="cpu",
@@ -128,7 +128,6 @@ class Predictor(object):
         self.preproc = ValTransform(legacy=legacy)
         if trt_file is not None:
             from torch2trt import TRTModule
-
             model_trt = TRTModule()
             model_trt.load_state_dict(torch.load(trt_file))
 
@@ -137,13 +136,15 @@ class Predictor(object):
             self.model = model_trt
 
     def inference(self, img):
+        print("=== img : ",img)
         img_info = {"id": 0}
         if isinstance(img, str):
             img_info["file_name"] = os.path.basename(img)
             img = cv2.imread(img)
+            img = cv2.resize(img, dsize=(416, 416))
         else:
             img_info["file_name"] = None
-
+        print("=== img_info : ",img_info)
         height, width = img.shape[:2]
         img_info["height"] = height
         img_info["width"] = width
@@ -161,23 +162,19 @@ class Predictor(object):
                 img = img.half()  # to FP16
 
         with torch.no_grad():
-            t0 = time.time()
             outputs = self.model(img)
-            
             if self.decoder is not None:
                 outputs = self.decoder(outputs, dtype=outputs.type())
-                print("=== demo_outputs1 : ",outputs)
+            print("======= outputs1 : ",outputs)
             outputs = postprocess(
                 outputs, self.num_classes, self.confthre,
                 self.nmsthre, class_agnostic=True
             )
-            print("=== demo_outputs2 : ",outputs)
             # logger.info("Infer time: {:.4f}s".format(time.time() - t0))
-        
+        print("======= outputs2 : ",outputs)
         return outputs, img_info
 
     def visual(self, output, img_info, cls_conf=0.35):
-        print("=== 진입")
         print("=== output : ",output)
         temp = {}
         ratio = img_info["ratio"]
@@ -193,7 +190,6 @@ class Predictor(object):
 
         cls = output[:, 6]
         scores = output[:, 4] * output[:, 5]
-        
         vis_res, json_obj = vis(img, bboxes, scores, cls, cls_conf, self.cls_names)
         print("=== vis_res : ",vis_res," | json_obj : ",json_obj)
         return vis_res, json_obj
@@ -203,20 +199,14 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
     json_obj = {}
     
     real_path = os.path.join(MEDIA_ROOT, str(path))
-    print("=== real_path : ",real_path)
     
     if os.path.isdir(real_path):
-        print("=== success1")
         files = get_image_list(real_path)
     else:
-        print("=== success2")
         files = [real_path]
     files.sort()
     for image_name in files:
-        print("=== image_name : ",image_name)
         outputs, img_info = predictor.inference(image_name)
-        print("=== outputs : ",outputs)
-        print("=== img_info : ",img_info)
         result_image, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre)
         # fallen, broken 개수 반환
         
@@ -235,7 +225,10 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
 
 # 동영상, 웹캡 실행
 def imageflow_demo(predictor, vis_folder, current_time, args):
-    cap = cv2.VideoCapture(args.path if args.demo == "video" else args.camid)
+    path = args.path if args.demo == "video" else args.camid
+    real_path = os.path.join(MEDIA_ROOT, str(path))
+    print("=== real_path : ",real_path)
+    cap = cv2.VideoCapture(real_path)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -244,17 +237,20 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
     )
     os.makedirs(save_folder, exist_ok=True)
     if args.demo == "video":
-        save_path = os.path.join(save_folder, os.path.basename(args.path))
+        save_path = os.path.join(save_folder, os.path.basename(real_path))
     else:
         save_path = os.path.join(save_folder, "camera.mp4")
     # logger.info(f"video save_path is {save_path}")
+    print("=== save_path : ",save_path)
     vid_writer = cv2.VideoWriter(
         save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height))
     )
     while True:
         ret_val, frame = cap.read()
+        print("=== frame : ",frame)
         if ret_val:
             outputs, img_info = predictor.inference(frame)
+            print("=== outputs : ",outputs," | img_info : ",img_info)
             result_frame = predictor.visual(outputs[0], img_info, predictor.confthre)
             if args.save_result:
                 vid_writer.write(result_frame)
@@ -291,7 +287,6 @@ def main(exp, args):
         exp.test_size = (args.tsize, args.tsize)
 
     model = exp.get_model()
-    # logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
 
     if args.device == "gpu":
         model.cuda()
@@ -304,14 +299,11 @@ def main(exp, args):
             ckpt_file = os.path.join(file_name, "best_ckpt.pth")
         else:
             ckpt_file = args.ckpt
-        # logger.info("loading checkpoint")
         ckpt = torch.load(ckpt_file, map_location="cpu")
         # load the model state dict
-        # model.load_state_dict(ckpt["model"])
-        # logger.info("loaded checkpoint done.")
+        model.load_state_dict(ckpt["model"])
 
     if args.fuse:
-        # logger.info("\tFusing model...")
         model = fuse_model(model)
 
     if args.trt:
@@ -328,7 +320,7 @@ def main(exp, args):
         decoder = None
 
     predictor = Predictor(
-        model, exp, coco_classes, trt_file, decoder,
+        model, exp, ("down","broken","normal"), trt_file, decoder,
         args.device, args.fp16, args.legacy,
     )
     current_time = time.localtime()
@@ -336,6 +328,7 @@ def main(exp, args):
         json_obj = image_demo(predictor, vis_folder, args.path, current_time, args.save_result)
     elif args.demo == "video" or args.demo == "webcam":
         imageflow_demo(predictor, vis_folder, current_time, args)
+    print("=== json_obj : ",json_obj)
     return json_obj
 
 

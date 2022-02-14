@@ -1,5 +1,4 @@
-
-COCO_CLASSES = (
+coco_classes = (
   "down",
   "broken",
   "normal"

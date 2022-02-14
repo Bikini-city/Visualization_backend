@@ -38,7 +38,7 @@ def postprocess(prediction, num_classes, conf_thre=0.25, nms_thre=0.45, class_ag
     prediction[:, :, :4] = box_corner[:, :, :4]
 
     output = [None for _ in range(len(prediction))]
-
+    print("=== prediction : ",prediction)
     for i, image_pred in enumerate(prediction):
         # If none are remaining => process next image
         print("=== image_pred : ",image_pred)
@@ -50,17 +50,19 @@ def postprocess(prediction, num_classes, conf_thre=0.25, nms_thre=0.45, class_ag
         # Detections ordered as (x1, y1, x2, y2, obj_conf, class_conf, class_pred)
         detections = torch.cat((image_pred[:, :5], class_conf, class_pred.float()), 1)
         detections = detections[conf_mask]
-        
+        print("=== detections : ",detections)
         if not detections.size(0):
             continue
 
         if class_agnostic:
+            print("=== okay")
             nms_out_index = torchvision.ops.nms(
                 detections[:, :4],
                 detections[:, 4] * detections[:, 5],
                 nms_thre,
             )
         else:
+            print("=== else")
             nms_out_index = torchvision.ops.batched_nms(
                 detections[:, :4],
                 detections[:, 4] * detections[:, 5],
