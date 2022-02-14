@@ -8,6 +8,8 @@ pip install requirements.txt
 
 (++fallentree/setting.py에서 secret_key와 db설정)
 
+cd fallentree
+
 python manage.py makemigrations
 
 python manage.py migrate
