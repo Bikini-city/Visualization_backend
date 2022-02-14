@@ -8,9 +8,9 @@ import json
 
 __all__ = ["vis"]
 
-
+down, broken = 0, 0
 def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
-    down, broken = 0, 0
+    global down, broken
     json_obj = {}
     for i in range(len(boxes)):
         box = boxes[i]
