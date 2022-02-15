@@ -1,4 +1,3 @@
-from .models import Detections
 from .setups import EXP_FILE,MODEL_PATH
 from .YOLOX.tools.demo import main,make_parser,get_exp
 

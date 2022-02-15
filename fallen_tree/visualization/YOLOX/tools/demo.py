@@ -6,20 +6,16 @@ import argparse
 import os
 import time
 
-from itsdangerous import json
 # from loguru import logger
 
 import cv2
 import torch
-import base64
-from io import BytesIO
-from PIL import Image
 import numpy as np
 from fallen_tree.settings import MEDIA_ROOT 
 
 # from visualization.YOLOX.data.data_augment import ValTransform
 from visualization.YOLOX.yolox.exp import get_exp
-from visualization.YOLOX.yolox.utils import fuse_model, get_model_info, postprocess, vis
+from visualization.YOLOX.yolox.utils import fuse_model, postprocess, vis
 from visualization.YOLOX.yolox.data.data_augment import ValTransform
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
