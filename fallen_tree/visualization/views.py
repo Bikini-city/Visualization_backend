@@ -17,7 +17,7 @@ from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import parser_classes
 from rest_framework.views import APIView
 from django.utils.datastructures import MultiValueDictKeyError
-
+from django.views.decorators.csrf import csrf_exempt
 test = True
 
 #form-data for posting dataset's image or video
@@ -55,6 +55,7 @@ def getDataSets(request):
 @swagger_auto_schema(method="post",manual_parameters=[src,lat,lng,dat],responses=PostDataSet_response_dict)
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
+@csrf_exempt
 def postDataSet(request):
     try:
         error_data = {}
