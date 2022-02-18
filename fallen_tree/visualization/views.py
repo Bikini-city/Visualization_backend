@@ -62,8 +62,8 @@ def postDataSet(request):
         if request.method == 'POST':
             lat = request.POST['lat']
             lng = request.POST['lng']
-            src = request.FILES.get("src", None)
             date = request.POST['date']
+            src = request.FILES.get('src',None)
             dataSet = DataSet(
                 lat=lat,
                 lng=lng,
