@@ -5,7 +5,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .serializers import DataSetSerializer
-from .forms import FileUploadForm
 from .models import DataSet, FileUpload
 from .response_schema import *
 

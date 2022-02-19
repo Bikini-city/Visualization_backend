@@ -1,3 +1,5 @@
 fallen_tree/media
 fallen_tree/.env
 myvenv
+fallen_tree/YOLOX_outputs
+fallen_tree/.vscode
