@@ -65,7 +65,6 @@ def postDataSet(request):
             lng = request.POST['lng']
             date = request.POST['date']
             src = request.FILES.get('src',None)
-            print("src",src)
             dataSet = DataSet(
                 lat=lat,
                 lng=lng,
@@ -85,7 +84,9 @@ def postDataSet(request):
                 result.save()
             #### For Test END ####
             else:
-                down, broken = detect(src)
+                print("src",src)
+                print("src",dataSet.src)
+                down, broken = detect(dataSet_data["src"])
                 result = Result (
                     broken = broken,
                     down = down,

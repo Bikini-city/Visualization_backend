@@ -9,3 +9,7 @@ fallen_tree/visualization/__pycache__
 visualization/migration
 media
 YOLOX_outputs
+*.log
+*.pot
+*.pyc
+__pycache__/
