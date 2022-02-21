@@ -20,9 +20,8 @@ from visualization.YOLOX.yolox.evaluators.voc_eval import voc_eval
 from .datasets_wrapper import Dataset
 from .voc_classes import VOC_CLASSES
 
-
 class AnnotationTransform(object):
-
+    
     """Transforms a VOC annotation into a Tensor of bbox coords and label index
     Initilized with a dictionary lookup of classnames to indexes
 
@@ -321,6 +320,7 @@ class VOCDetection(Dataset):
         if not os.path.exists(cachedir):
             os.makedirs(cachedir)
         aps = []
+        recs = []
         # The PASCAL VOC metric changed in 2010
         use_07_metric = True if int(self._year) < 2010 else False
         print("Eval IoU : {:.2f}".format(iou))
@@ -342,6 +342,9 @@ class VOCDetection(Dataset):
                 use_07_metric=use_07_metric,
             )
             aps += [ap]
+            recs += [np.mean(rec)]
+            # print("=== aps : ",aps,"recs : ",recs)
+            f1_score = (2 * np.mean(aps) * np.mean(recs))/(np.mean(aps) + np.mean(recs))
             if iou == 0.5:
                 print("AP for {} = {:.4f}".format(cls, ap))
             if output_dir is not None:
@@ -350,6 +353,7 @@ class VOCDetection(Dataset):
         if iou == 0.5:
             print("Mean AP = {:.4f}".format(np.mean(aps)))
             print("~~~~~~~~")
+            print("f1_score : ",f1_score) # f1_score result
             print("Results:")
             for ap in aps:
                 print("{:.3f}".format(ap))
