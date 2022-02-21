@@ -13,3 +13,5 @@ YOLOX_outputs
 *.pot
 *.pyc
 __pycache__/
+fallen_tree/visualization/__pycache__/
+fallen_tree/visualization/YOLOX/tools/__pycache__/

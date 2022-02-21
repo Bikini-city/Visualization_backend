@@ -3,7 +3,6 @@
 # Copyright (c) Megvii, Inc. and its affiliates.
 
 import argparse
-import os
 import time
 
 # from loguru import logger
@@ -13,12 +12,18 @@ import torch
 import numpy as np
 from fallen_tree.settings import MEDIA_ROOT 
 
+from dotenv import load_dotenv
+import os
+import boto3
+load_dotenv()
+
 # from visualization.YOLOX.data.data_augment import ValTransform
 from visualization.YOLOX.yolox.exp import get_exp
 from visualization.YOLOX.yolox.utils import fuse_model, postprocess, vis
 from visualization.YOLOX.yolox.data.data_augment import ValTransform
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
+
 
 
 def make_parser():
@@ -98,6 +103,21 @@ def get_image_list(path):
                 image_names.append(apath)
     return image_names
 
+
+def get_image_lists():
+    session = boto3.Session( 
+         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), 
+         aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+    )
+    
+    #Then use the session to get the resource
+    s3 = session.resource('s3')
+
+    my_bucket = s3.Bucket(os.getenv('AWS_STORAGE_BUCKET_NAME'))
+
+    for my_bucket_object in my_bucket.objects.all():
+        print(my_bucket_object.key)
+    
 
 class Predictor(object):
     def __init__(

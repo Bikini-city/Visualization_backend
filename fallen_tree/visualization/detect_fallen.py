@@ -1,26 +1,6 @@
 from .setups import EXP_FILE,MODEL_PATH
 from .YOLOX.tools.demo import main,make_parser,get_exp
-import boto3
-from dotenv import load_dotenv
-import os
-from PIL import Image
 
-load_dotenv()
-
-#Creating Session With Boto3.
-session = boto3.Session(
-aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID") ,
-aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
-)
-#Creating S3 Resource From the Session.
-s3 = session.resource('s3')
-def read_data_from_s3(src):
-    bucket = s3.Bucket(os.getenv('AWS_STORAGE_BUCKET_NAME'))
-    object = bucket.Object(src)
-    response = object.get()
-    file_stream = response['Body']
-    img = Image.open(file_stream)
-    return img
 
 def detect(src):
     # Perform Transaction
