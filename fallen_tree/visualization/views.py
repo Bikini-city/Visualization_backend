@@ -17,7 +17,9 @@ from rest_framework.decorators import parser_classes
 from rest_framework.views import APIView
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
-test = True
+
+from visualization.detect_fallen import detect
+test = False
 
 #form-data for posting dataset's image or video
 src = openapi.Parameter('src', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True)
@@ -63,6 +65,7 @@ def postDataSet(request):
             lng = request.POST['lng']
             date = request.POST['date']
             src = request.FILES.get('src',None)
+            print("src",src)
             dataSet = DataSet(
                 lat=lat,
                 lng=lng,
@@ -81,7 +84,15 @@ def postDataSet(request):
                 )
                 result.save()
             #### For Test END ####
-
+            else:
+                down, broken = detect(src)
+                result = Result (
+                    broken = broken,
+                    down = down,
+                    dataSet_id = dataSet
+                )
+                result.save()
+                
             result_json = ResultSerializer(result).data
             dataSet_data["broken"] = result_json["broken"]
             dataSet_data["down"] = result_json["down"]
