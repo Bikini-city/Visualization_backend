@@ -13,8 +13,8 @@ def get_exp_by_file(exp_file):
         sys.path.append(os.path.dirname(exp_file))
         print("=== exp_file : ",os.path.basename(exp_file).split(".")[0])
         current_exp = importlib.import_module(os.path.basename(exp_file).split(".")[0])
-        # print("=== current_exp : ",current_exp)
         exp = current_exp.Exp()
+        
     except Exception:
         raise ImportError("{} doesn't contains class named 'Exp'".format(exp_file))
     return exp
