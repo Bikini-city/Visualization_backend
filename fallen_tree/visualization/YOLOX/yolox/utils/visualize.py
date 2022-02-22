@@ -9,8 +9,10 @@ import json
 __all__ = ["vis"]
 
 down, broken = 0, 0
-def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
+def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None, demo='image'):
     global down, broken
+    if demo == "image":
+        down, broken = 0, 0
     json_obj = {}
     for i in range(len(boxes)):
         box = boxes[i]
@@ -50,7 +52,7 @@ def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
         )
         cv2.putText(img, text, (x0, y0 + txt_size[1]), font, 0.4, txt_color, thickness=1)
     print("=== down 개수 : ",down," / broken 개수 : ",broken)
-
+    # del down, broken
     return img, json_obj
 
 

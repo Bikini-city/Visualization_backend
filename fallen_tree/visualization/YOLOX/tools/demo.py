@@ -194,7 +194,7 @@ class Predictor(object):
         print("======= outputs2 : ",outputs)
         return outputs, img_info
 
-    def visual(self, output, img_info, cls_conf=0.35):
+    def visual(self, output, img_info, cls_conf=0.35, demo='image'):
         print("=== output : ",output)
         temp = {}
         ratio = img_info["ratio"]
@@ -210,7 +210,7 @@ class Predictor(object):
 
         cls = output[:, 6]
         scores = output[:, 4] * output[:, 5]
-        vis_res, json_obj = vis(img, bboxes, scores, cls, cls_conf, self.cls_names)
+        vis_res, json_obj = vis(img, bboxes, scores, cls, cls_conf, self.cls_names, demo)
         print("=== vis_res : ",vis_res," | json_obj : ",json_obj)
         return vis_res, json_obj
 
@@ -227,7 +227,7 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
     files.sort()
     for image_name in files:
         outputs, img_info = predictor.inference(image_name)
-        result_image, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre)
+        result_image, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre,'image')
         # fallen, broken 개수 반환
         
         if save_result:
@@ -245,8 +245,14 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
 
 # 동영상, 웹캡 실행
 def imageflow_demo(predictor, vis_folder, current_time, args):
+    print("=== vis_folder : ",vis_folder)
+    json_obj = {}
+    # real_path = os.path.join(BASE_DIR, str(vis_folder))
+    # get_image_lists(path)
+    
     path = args.path if args.demo == "video" else args.camid
-    real_path = os.path.join(MEDIA_ROOT, str(path))
+    real_path = os.path.join(BASE_DIR, str(path))
+    get_image_lists(path)
     print("=== real_path : ",real_path)
     cap = cv2.VideoCapture(real_path)
     cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
@@ -270,7 +276,7 @@ def imageflow_demo(predictor, vis_folder, current_time, args):
         if ret_val:
             outputs, img_info = predictor.inference(resize_frame)
             print("=== outputs : ",outputs," | img_info : ",img_info)
-            result_frame, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre)
+            result_frame, json_obj = predictor.visual(outputs[0], img_info, predictor.confthre,'video')
             # if args.save_result:
             #     vid_writer.write(result_frame)
             ch = cv2.waitKey(1)
