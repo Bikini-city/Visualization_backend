@@ -4,8 +4,6 @@ myvenv
 fallen_tree/YOLOX_outputs
 fallen_tree/.vscode
 fallen_tree/fallen_tree/.env
-fallen_tree/fallen_tree/__pycache__
-fallen_tree/visualization/__pycache__
 visualization/migration
 media
 YOLOX_outputs

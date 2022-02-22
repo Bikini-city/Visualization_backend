@@ -10,7 +10,7 @@ import time
 import cv2
 import torch
 import numpy as np
-from fallen_tree.settings import MEDIA_ROOT 
+from fallen_tree.settings import MEDIA_ROOT,BASE_DIR
 
 from dotenv import load_dotenv
 import os
@@ -103,21 +103,26 @@ def get_image_list(path):
                 image_names.append(apath)
     return image_names
 
+"""from PIL import Image
+s3 = boto3.resource('s3')
+def read_image_from_s3(filename):
+    bucket = s3.Bucket(os.getenv('AWS_STORAGE_BUCKET_NAME'))
+    object = bucket.Object(filename)
+    response = object.get()
+    file_stream = response['Body']
+    img = Image.open(file_stream)
+    return img"""
 
-def get_image_lists():
+def get_image_lists(src):
     session = boto3.Session( 
          aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), 
          aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
     )
-    
     #Then use the session to get the resource
-    s3 = session.resource('s3')
-
-    my_bucket = s3.Bucket(os.getenv('AWS_STORAGE_BUCKET_NAME'))
-
-    for my_bucket_object in my_bucket.objects.all():
-        print(my_bucket_object.key)
-    
+    s3 = boto3.client('s3')
+    path = str(src)
+    print("path", path)
+    s3.download_file(os.getenv('AWS_STORAGE_BUCKET_NAME'), path, path)
 
 class Predictor(object):
     def __init__(
@@ -213,8 +218,8 @@ class Predictor(object):
 def image_demo(predictor, vis_folder, path, current_time, save_result):
     json_obj = {}
     
-    real_path = os.path.join(MEDIA_ROOT, str(path))
-    
+    real_path = os.path.join(BASE_DIR, str(path))
+    get_image_lists(path)
     if os.path.isdir(real_path):
         files = get_image_list(real_path)
     else:

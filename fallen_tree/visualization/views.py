@@ -19,6 +19,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import csrf_exempt
 
 from visualization.detect_fallen import detect
+
+import os
+from fallen_tree.settings import BASE_DIR
 test = False
 
 #form-data for posting dataset's image or video
@@ -85,8 +88,8 @@ def postDataSet(request):
             #### For Test END ####
             else:
                 print("src",src)
-                print("src",dataSet.src)
-                down, broken = detect(dataSet_data["src"])
+                
+                down, broken = detect(dataSet.src)
                 result = Result (
                     broken = broken,
                     down = down,
@@ -98,6 +101,8 @@ def postDataSet(request):
             dataSet_data["broken"] = result_json["broken"]
             dataSet_data["down"] = result_json["down"]
 
+            print("src",dataSet.src)
+            os.remove(os.path.join(BASE_DIR, str(dataSet.src)))
             return JsonResponse(dataSet_data, safe=False, status=status.HTTP_201_CREATED)
         else:
             error_data["error"] = "POST /datas에서 오류가 발생함"
